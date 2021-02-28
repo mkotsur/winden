@@ -21,14 +21,17 @@ object Winden extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] = {
 
-    def askMonthIO: IO[YearMonth] =
+    val prevMonth = YearMonth.now().minusMonths(1)
+
+    def askMonthIO(suggestedMonth: YearMonth): IO[YearMonth] =
       for {
-        prevMonth <- IO(YearMonth.now().minusMonths(1))
         monthStrNoSpaces <- IO(
-          StdIn.readLine(s"Month YYYY.MM? [enter for ${prevMonth.format(formats.`YYYY.MM`)}] >").replaceAll(" ", "")
+          StdIn
+            .readLine(s"Month YYYY.MM? [enter for ${suggestedMonth.format(formats.`YYYY.MM`)}] >")
+            .replaceAll(" ", "")
         )
         month <- monthStrNoSpaces match {
-          case ""    => prevMonth.pure[IO]
+          case ""    => suggestedMonth.pure[IO]
           case other => IO.fromTry(Try(YearMonth.parse(other, formats.`YYYY.MM`)))
         }
       } yield month
@@ -47,7 +50,7 @@ object Winden extends IOApp {
       }.sequence
 
     for {
-      month      <- askMonthIO
+      month      <- askMonthIO(prevMonth)
       days       <- PersonalAssistant.allBusinessDays(month).pure[IO]
       _          <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
       timePieces <- timePiecesIO(days)
