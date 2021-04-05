@@ -7,10 +7,10 @@ object PersonalAssistant {
 
   private val weekend = List(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
 
-  def allBusinessDays(ym: YearMonth): List[LocalDate] =
+  def potentiallyWorkingDays(ym: YearMonth, weekends: Boolean): List[LocalDate] =
     Range(1, ym.atEndOfMonth().getDayOfMonth + 1)
       .map(ym.atDay)
-      .filterNot(day => weekend.contains(day.getDayOfWeek))
+      .filterNot(day => !weekends && weekend.contains(day.getDayOfWeek))
       .toList
 
 }
