@@ -5,7 +5,6 @@ import cats.Show
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import javax.swing.text.DateFormatter
 
 case class TimePiece(hours: Byte, day: LocalDate, description: String)
 

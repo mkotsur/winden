@@ -1,15 +1,14 @@
 package io.github.mkotsur
-package winden.cli.effects
-
 import winden.model.Prompt
 
 import cats.Show
 import cats.effect.IO
 import cats.implicits._
+
 import scala.io.StdIn
 import scala.util.Try
 
-package object meow {
+package object winden {
 
   object implicits {
     implicit class PromptEffectIO[A: Show](prompt: Prompt[A]) {

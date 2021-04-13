@@ -11,10 +11,18 @@ object Prompt {
     def descPrompt = Prompt("Description", identity, "")
 
     def reportWeekend =
-      Prompt(question = "Do you want to report any weekend hours [no]?", _.toLowerCase === "yes", false)
+      Prompt(
+        question = "Do you want to report any weekend hours [no]?",
+        _.toLowerCase === "yes",
+        false
+      )
 
     def dailyDescription =
-      Prompt(question = "Do you want to add daily descriptions [no]?", _.toLowerCase === "yes", false)
+      Prompt(
+        question = "Do you want to add daily descriptions [no]?",
+        _.toLowerCase === "yes",
+        false
+      )
 
     def prevMonthPrompt = {
       val prevMonth = YearMonth.now().minusMonths(1)
@@ -22,7 +30,11 @@ object Prompt {
     }
 
     def timePiecePrompt(localDate: LocalDate): Prompt[Byte] =
-      Prompt(s"Hours on ${localDate.getDayOfMonth}  ${localDate.getDayOfWeek}", java.lang.Byte.parseByte, 0.toByte)
+      Prompt(
+        s"Hours on ${localDate.getDayOfMonth}  ${localDate.getDayOfWeek}",
+        java.lang.Byte.parseByte,
+        0.toByte
+      )
 
   }
 }
