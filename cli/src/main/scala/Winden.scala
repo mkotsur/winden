@@ -16,14 +16,15 @@ object Winden extends IOApp {
 
   override def run(args: List[String]): IO[ExitCode] =
     for {
-      month             <- prevMonthPrompt.toIO
+      month             <- currentMonthPrompt.toIO
       weekends          <- reportWeekend.toIO
       dailyDescriptions <- dailyDescription.toIO
       loadedPieces      <- Persistence.load(month).map(_.getOrElse(Nil))
       allDays           <- PersonalAssistant.potentiallyWorkingDays(month, weekends).pure[IO]
       filteredDays = allDays.filterNot(d => loadedPieces.map(_.day).contains(d))
       _ <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
-      timePieces <- {
+      _ <- IO(println(loadedPieces.show))
+      newPieces <- {
         def processDays(
             days: List[LocalDate],
             accIO: IO[List[TimePiece]] = IO.pure(Nil)
@@ -43,7 +44,7 @@ object Winden extends IOApp {
                   for {
                     _    <- IO(println("Storing intermediate results"))
                     acc  <- accIO
-                    file <- Persistence.store(month, acc)
+                    file <- Persistence.store(month, loadedPieces ++ acc)
                     _    <- IO(println(s"Written into ${file}"))
                   } yield acc
               }
@@ -52,22 +53,9 @@ object Winden extends IOApp {
 
         processDays(filteredDays)
       }
-      //        days
-      //          .foldLeft((true, IO.pure(List[TimePiece]())))({
-      //            case ((true, accIO), nxtDate) =>
-      //              for {
-      //                hours <- timePiecePrompt(nxtDate).toIO
-      //                desc  <- if (dailyDescriptions) descPrompt.toIO else "".pure[IO]
-      //                acc   <- accIO
-      //              } yield (true, acc :+ TimePiece(hours, nxtDate, desc))
-      //            case ((false, accIO), _) => (false, accIO)
-      //          })
-      //          //          .map { localDate =>
-      //          //          }
-      //          ._2
-      _ <- IO(println(timePieces.map(_.show).mkString("\n")))
+      _ <- IO(println((loadedPieces ++ newPieces).show))
       _ <- IO(println("----------------------------------------------"))
-      _ <- IO(println(s"Total: ${timePieces.map(_.hours).sum}h"))
+      _ <- IO(println(s"Total: ${(loadedPieces ++ newPieces).map(_.hours).sum}h"))
     } yield ExitCode.Success
 
 }

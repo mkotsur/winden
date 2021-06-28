@@ -24,10 +24,8 @@ object Prompt {
         false
       )
 
-    def prevMonthPrompt = {
-      val prevMonth = YearMonth.now().minusMonths(1)
-      Prompt("Month YYYY.MM?", YearMonth.parse(_, formats.`YYYY.MM`), prevMonth)
-    }
+    def currentMonthPrompt =
+      Prompt("Month YYYY.MM?", YearMonth.parse(_, formats.`YYYY.MM`), YearMonth.now)
 
     def timePiecePrompt(localDate: LocalDate): Prompt[Byte] =
       Prompt(

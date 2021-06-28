@@ -19,7 +19,7 @@ object WindenWeb extends IOApp {
 
     val helloWorldService = HttpRoutes.of[IO] {
       case GET -> Root / "hello" =>
-        Ok(prevMonthPrompt)
+        Ok(currentMonthPrompt)
     }
 
     val httpApp = Router("/" -> helloWorldService).orNotFound
