@@ -53,9 +53,11 @@ object Winden extends IOApp {
 
         processDays(filteredDays)
       }
-      _ <- IO(println((loadedPieces ++ newPieces).show))
-      _ <- IO(println("----------------------------------------------"))
-      _ <- IO(println(s"Total: ${(loadedPieces ++ newPieces).map(_.hours).sum}h"))
+      _    <- IO(println((loadedPieces ++ newPieces).show))
+      _    <- IO(println("----------------------------------------------"))
+      _    <- IO(println(s"Total: ${(loadedPieces ++ newPieces).foldLeft(0)(_ + _.hours)}h"))
+      file <- Persistence.store(month, loadedPieces ++ newPieces)
+      _    <- IO(println(s"Written into ${file}"))
     } yield ExitCode.Success
 
 }
