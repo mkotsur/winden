@@ -76,7 +76,7 @@ lazy val deps = new {
   val testAll = Seq(
     "org.scalatest" %% "scalatest"       % "3.1.0"  % "test",
     "org.mockito"   %% "mockito-scala"   % "1.10.0" % "test",
-    "ch.qos.logback" % "logback-classic" % "1.2.3"  % "test"
+    "ch.qos.logback" % "logback-classic" % "1.4.5"  % "test"
   )
 }
 
