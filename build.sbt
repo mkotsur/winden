@@ -9,7 +9,7 @@ ThisBuild / idePackagePrefix := Some("io.github.mkotsur")
 
 inThisBuild(
   List(
-    scalaVersion := "2.13.4",
+    scalaVersion := "2.13.10",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := "2.13"
