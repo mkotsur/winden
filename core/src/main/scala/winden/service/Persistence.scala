@@ -16,7 +16,7 @@ import io.circe.parser.decode
 
 object Persistence {
 
-  val workDir: File = home / ".winden"
+  val workDir: BFile = home / ".winden"
 
   private val format = DateTimeFormatter.ofPattern("yyyy.MM")
 
