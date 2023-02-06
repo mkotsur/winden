@@ -4,22 +4,19 @@ package winden.service
 import cats.effect.IO
 import cats.implicits._
 import io.github.mkotsur.winden.model.TimePiece
-import better.files.{StringInterpolations, File => BFile}
-import better.files._
+import better.files.{File => BFile}
 import BFile._
 
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import io.circe._
 import io.circe.Encoder.encodeLocalDate
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.circe._
-import io.circe.parser.{decode, _}
+import io.circe.parser.decode
 
 object Persistence {
 
-  val workDir = home / ".winden"
+  val workDir: File = home / ".winden"
 
   private val format = DateTimeFormatter.ofPattern("yyyy.MM")
 

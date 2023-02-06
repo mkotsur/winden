@@ -1,7 +1,7 @@
 package io.github.mkotsur
 package winden.service
 
-import java.time.{DayOfWeek, LocalDate, Period, YearMonth}
+import java.time.{DayOfWeek, LocalDate, YearMonth}
 
 object PersonalAssistant {
 

@@ -8,23 +8,23 @@ import java.time.{LocalDate, YearMonth}
 object Prompt {
   object dict {
 
-    def descPrompt = Prompt("Description", identity, "")
+    def descPrompt: Prompt[String] = Prompt("Description", identity, "")
 
-    def reportWeekend =
+    def reportWeekend: Prompt[Boolean] =
       Prompt(
         question = "Do you want to report any weekend hours [no]?",
         _.toLowerCase === "yes",
         false
       )
 
-    def dailyDescription =
+    def dailyDescription: Prompt[Boolean] =
       Prompt(
         question = "Do you want to add daily descriptions [no]?",
         _.toLowerCase === "yes",
         false
       )
 
-    def currentMonthPrompt =
+    def currentMonthPrompt: Prompt[YearMonth] =
       Prompt("Month YYYY.MM?", YearMonth.parse(_, formats.`YYYY.MM`), YearMonth.now)
 
     def timePiecePrompt(localDate: LocalDate): Prompt[Byte] =

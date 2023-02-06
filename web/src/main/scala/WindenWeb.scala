@@ -5,7 +5,6 @@ import winden.web.json.encoders._
 
 import cats.effect.{ExitCode, IO, IOApp}
 import io.circe.Encoder.encodeYearMonth
-import io.circe._
 import org.http4s.HttpRoutes
 import org.http4s.circe.CirceEntityEncoder._
 import org.http4s.dsl.io._

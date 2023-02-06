@@ -13,7 +13,7 @@ package object model {
 
   object jdktime {
     object implicits {
-      implicit val showMonth = new Show[YearMonth] {
+      implicit val showMonth: Show[YearMonth] = new Show[YearMonth] {
         override def show(t: YearMonth): String = t.format(formats.`YYYY.MM`)
       }
     }

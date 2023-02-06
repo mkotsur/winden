@@ -12,7 +12,7 @@ case class TimePiece(hours: Byte, day: LocalDate, description: String)
 object TimePiece {
 
   private object formats {
-    val reportFormat = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.ENGLISH)
+    val reportFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.ENGLISH)
   }
 
   object implicits {
