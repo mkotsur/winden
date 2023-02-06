@@ -1,10 +1,25 @@
+Global / excludeLintKeys += ThisBuild / idePackagePrefix
+Global / excludeLintKeys += ThisBuild / name
+
 ThisBuild / name := "winden"
 
 ThisBuild / version := "0.1"
 
-ThisBuild / scalaVersion := "2.13.4"
-
 ThisBuild / idePackagePrefix := Some("io.github.mkotsur")
+
+inThisBuild(
+  List(
+    scalaVersion := "2.13.4",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalafixScalaBinaryVersion := "2.13"
+  )
+)
+
+
+ThisBuild / scalacOptions ++= Seq(
+  "-Xlint:unused"
+)
 
 lazy val core = project.settings(
   libraryDependencies ++= deps.testAll ++ Seq(
@@ -14,7 +29,7 @@ lazy val core = project.settings(
     deps.circeParser
   ),
   settings.CompilerPlugins
-//  settings.SimplePaths
+  //  settings.SimplePaths
 )
 
 lazy val web = project
@@ -24,7 +39,7 @@ lazy val web = project
       deps.betterFiles
     ) ++ deps.http4sAll,
     settings.CompilerPlugins
-//  settings.SimplePaths
+    //  settings.SimplePaths
   )
   .dependsOn(core)
 
@@ -32,7 +47,7 @@ lazy val cli = project
   .settings(
     libraryDependencies ++= deps.testAll ++ Seq(deps.catsEffect, deps.betterFiles),
     settings.CompilerPlugins
-//  settings.SimplePaths
+    //  settings.SimplePaths
   )
   .dependsOn(core)
 
@@ -67,10 +82,10 @@ lazy val deps = new {
 
 lazy val settings = new {
 
-//  val SimplePaths = Seq(
-//    Compile / scalaSource := baseDirectory.value / "src",
-//    Compile / resourceDirectory := baseDirectory.value / "res"
-//  )
+  //  val SimplePaths = Seq(
+  //    Compile / scalaSource := baseDirectory.value / "src",
+  //    Compile / resourceDirectory := baseDirectory.value / "res"
+  //  )
 
   val CompilerPlugins = Seq(
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.3" cross CrossVersion.full)
