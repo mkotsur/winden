@@ -27,7 +27,7 @@ object Prompt {
     def currentMonthPrompt: Prompt[YearMonth] =
       Prompt("Month YYYY.MM?", YearMonth.parse(_, formats.`YYYY.MM`), YearMonth.now)
 
-    def timePiecePrompt(localDate: LocalDate): Prompt[Byte] =
+    def piecePrompt(localDate: LocalDate): Prompt[Byte] =
       Prompt(
         s"Hours on ${localDate.getDayOfMonth}  ${localDate.getDayOfWeek}",
         java.lang.Byte.parseByte,

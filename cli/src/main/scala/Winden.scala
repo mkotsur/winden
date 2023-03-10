@@ -20,7 +20,7 @@ object Winden extends IOApp {
       weekends          <- reportWeekend.toIO
       dailyDescriptions <- dailyDescription.toIO
       loadedPieces      <- Persistence.load(month).map(_.getOrElse(Nil))
-      allDays           <- PersonalAssistant.potentiallyWorkingDays(month, weekends).pure[IO]
+      allDays           = PersonalAssistant.potentiallyWorkingDays(month, weekends)
       filteredDays = allDays.filterNot(d => loadedPieces.map(_.day).contains(d))
       _ <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
       _ <- IO(println(loadedPieces.show))
@@ -31,23 +31,21 @@ object Winden extends IOApp {
         ): IO[List[TimePiece]] =
           days match {
             case nxt :: rest =>
-              timePiecePrompt(nxt).toIO.attempt.flatMap {
-                case Right(hours) =>
-                  processDays(
-                    rest,
-                    for {
-                      desc <- if (dailyDescriptions) descPrompt.toIO else "".pure[IO]
-                      acc  <- accIO
-                    } yield acc :+ TimePiece(hours, nxt, desc)
-                  )
-                case Left(error) =>
-                  for {
-                    _    <- IO(println("Storing intermediate results"))
-                    acc  <- accIO
-                    file <- Persistence.store(month, loadedPieces ++ acc)
-                    _    <- IO(println(s"Written into ${file}"))
-                  } yield acc
-              }
+              (for {
+                tp <- piecePrompt(nxt).toIO
+                description <- if (dailyDescriptions) descPrompt.toIO else "".pure[IO]
+                r <- processDays(
+                  rest,
+                  accIO.map(_ :+ TimePiece(tp, nxt, description))
+                )
+              } yield r).recoverWith(_ =>
+                for {
+                  _ <- IO(println("Storing intermediate results"))
+                  acc <- accIO
+                  file <- Persistence.store(month, loadedPieces ++ acc)
+                  _ <- IO(println(s"Written into $file"))
+                } yield acc
+          )
             case Nil => accIO
           }
 
