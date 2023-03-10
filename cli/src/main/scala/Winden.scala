@@ -10,20 +10,30 @@ import winden.service.Persistence
 
 import TimePiece.implicits._
 
-import java.time.LocalDate
+import java.time.{LocalDate, YearMonth}
 
 object Winden extends IOApp {
 
-  override def run(args: List[String]): IO[ExitCode] =
+  private def reportMonth(month: YearMonth): IO[Unit] =
     for {
-      month             <- currentMonthPrompt.toIO
-      weekends          <- reportWeekend.toIO
-      dailyDescriptions <- dailyDescription.toIO
-      loadedPieces      <- Persistence.load(month).map(_.getOrElse(Nil))
-      allDays           = PersonalAssistant.potentiallyWorkingDays(month, weekends)
-      filteredDays = allDays.filterNot(d => loadedPieces.map(_.day).contains(d))
-      _ <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
+      includeDesc <- dailyDescription.toIO
+      loadedPieces <- Persistence.load(month).map {
+        case None                        => Nil
+        case Some(pieces) if includeDesc => pieces
+        case Some(pieces)                => pieces.map(_.copy(description = ""))
+      }
       _ <- IO(println(loadedPieces.show))
+    } yield ()
+
+  private def promptRemainingDays(
+      month: YearMonth,
+      loadedPieces: List[TimePiece],
+      filteredDays: List[LocalDate]
+  ): IO[Unit] =
+    for {
+      dailyDescriptions <- dailyDescription.toIO
+      _                 <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
+      _                 <- IO(println(loadedPieces.show))
       newPieces <- {
         def processDays(
             days: List[LocalDate],
@@ -32,7 +42,7 @@ object Winden extends IOApp {
           days match {
             case nxt :: rest =>
               (for {
-                tp <- piecePrompt(nxt).toIO
+                tp          <- piecePrompt(nxt).toIO
                 description <- if (dailyDescriptions) descPrompt.toIO else "".pure[IO]
                 r <- processDays(
                   rest,
@@ -40,12 +50,12 @@ object Winden extends IOApp {
                 )
               } yield r).recoverWith(_ =>
                 for {
-                  _ <- IO(println("Storing intermediate results"))
-                  acc <- accIO
+                  _    <- IO(println("Storing intermediate results"))
+                  acc  <- accIO
                   file <- Persistence.store(month, loadedPieces ++ acc)
-                  _ <- IO(println(s"Written into $file"))
+                  _    <- IO(println(s"Written into $file"))
                 } yield acc
-          )
+              )
             case Nil => accIO
           }
 
@@ -55,7 +65,23 @@ object Winden extends IOApp {
       _    <- IO(println("----------------------------------------------"))
       _    <- IO(println(s"Total: ${(loadedPieces ++ newPieces).foldLeft(0)(_ + _.hours)}h"))
       file <- Persistence.store(month, loadedPieces ++ newPieces)
-      _    <- IO(println(s"Written into ${file}"))
+      _    <- IO(println(s"Written into $file"))
+    } yield ()
+
+  override def run(args: List[String]): IO[ExitCode] =
+    for {
+      month        <- currentMonthPrompt.toIO
+      loadedPieces <- Persistence.load(month).map(_.getOrElse(Nil))
+      weekends     <- reportWeekend.toIO
+      filteredDays =
+        PersonalAssistant
+          .potentiallyWorkingDays(month, weekends)
+          .filterNot(d => loadedPieces.map(_.day).contains(d))
+      _ <-
+        if (filteredDays.isEmpty)
+          reportMonth(month)
+        else
+          promptRemainingDays(month, loadedPieces, filteredDays)
     } yield ExitCode.Success
 
 }
