@@ -1,0 +1,2 @@
+- [ ] Make it possible to report with or without descriptions
+- [ ] Don't request descriptions for 0 hours
