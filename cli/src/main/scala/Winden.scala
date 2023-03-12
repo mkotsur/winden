@@ -42,11 +42,12 @@ object Winden extends IOApp {
           days match {
             case nxt :: rest =>
               (for {
-                tp          <- piecePrompt(nxt).toIO
-                description <- if (dailyDescriptions) descPrompt.toIO else "".pure[IO]
+                timePiece <- piecePrompt(nxt).toIO
+                description <-
+                  if (dailyDescriptions && timePiece > 0) descPrompt.toIO else "".pure[IO]
                 r <- processDays(
                   rest,
-                  accIO.map(_ :+ TimePiece(tp, nxt, description))
+                  accIO.map(_ :+ TimePiece(timePiece, nxt, description))
                 )
               } yield r).recoverWith(_ =>
                 for {

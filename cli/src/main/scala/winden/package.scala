@@ -17,7 +17,8 @@ package object winden {
           strNoSpaces <- IO(
             StdIn
               .readLine(s"${prompt.question} [enter for ${prompt.defaultAnswer.show}] >")
-              .replaceAll(" ", "")
+              .replaceAll("^\\s+", "")
+              .replaceAll("\\s+$", "")
           )
           res <- strNoSpaces match {
             case ""    => prompt.defaultAnswer.pure[IO]
