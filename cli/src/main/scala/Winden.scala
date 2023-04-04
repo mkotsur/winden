@@ -8,8 +8,6 @@ import winden.model.jdktime.implicits._
 import winden.implicits._
 import winden.service.Persistence
 
-import TimePiece.implicits._
-
 import java.time.{LocalDate, YearMonth}
 
 object Winden extends IOApp {
@@ -22,7 +20,7 @@ object Winden extends IOApp {
         case Some(pieces) if includeDesc => pieces
         case Some(pieces)                => pieces.map(_.copy(description = ""))
       }
-      _ <- IO(println(loadedPieces.show))
+      _ <- Prompt.dict.summaryIO(loadedPieces)
     } yield ()
 
   private def promptRemainingDays(
@@ -33,7 +31,7 @@ object Winden extends IOApp {
     for {
       dailyDescriptions <- dailyDescription.toIO
       _                 <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
-      _                 <- IO(println(loadedPieces.show))
+      _                 <- Prompt.dict.summaryIO(loadedPieces)
       newPieces <- {
         def processDays(
             days: List[LocalDate],
@@ -62,9 +60,7 @@ object Winden extends IOApp {
 
         processDays(filteredDays)
       }
-      _    <- IO(println((loadedPieces ++ newPieces).show))
-      _    <- IO(println("----------------------------------------------"))
-      _    <- IO(println(s"Total: ${(loadedPieces ++ newPieces).foldLeft(0)(_ + _.hours)}h"))
+      _    <- Prompt.dict.summaryIO(loadedPieces ++ newPieces)
       file <- Persistence.store(month, loadedPieces ++ newPieces)
       _    <- IO(println(s"Written into $file"))
     } yield ()

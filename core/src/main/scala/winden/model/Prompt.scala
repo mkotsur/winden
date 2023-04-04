@@ -1,7 +1,10 @@
 package io.github.mkotsur
 package winden.model
 
-import cats.implicits.catsSyntaxEq
+import winden.model.TimePiece.implicits._
+
+import cats.effect.IO
+import cats.implicits.{catsSyntaxEq, toShow}
 
 import java.time.{LocalDate, YearMonth}
 
@@ -33,6 +36,14 @@ object Prompt {
         java.lang.Byte.parseByte,
         0.toByte
       )
+
+    //Todo: refactor to prompt
+    def summaryIO(pieces: List[TimePiece]): IO[Unit] =
+      for {
+        _ <- IO(println(pieces.show))
+        _ <- IO(println("----------------------------------------------"))
+        _ <- IO(println(s"Total: ${pieces.foldLeft(0)(_ + _.hours)}h"))
+      } yield ()
 
   }
 }
