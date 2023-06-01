@@ -16,16 +16,16 @@ object Prompt {
 
     def reportWeekend: Prompt[Boolean] =
       Prompt(
-        question = "Do you want to report any weekend hours [no]?",
+        question = "Do you want to report any weekend hours [yes]?",
         _.toLowerCase === "yes",
-        false
+        true
       )
 
     def dailyDescription: Prompt[Boolean] =
       Prompt(
-        question = "Do you want to add daily descriptions [no]?",
+        question = "Do you want to add daily descriptions [yes]?",
         _.toLowerCase === "yes",
-        false
+        true
       )
 
     def currentMonthPrompt: Prompt[YearMonth] =

@@ -3,7 +3,7 @@ import cats.effect.{ExitCode, IO, IOApp}
 import cats.implicits._
 import winden.model.Prompt.dict._
 import winden.model._
-import winden.service.PersonalAssistant
+import winden.service.WorkDays
 import winden.model.jdktime.implicits._
 import winden.implicits._
 import winden.service.Persistence
@@ -11,6 +11,22 @@ import winden.service.Persistence
 import java.time.{LocalDate, YearMonth}
 
 object Winden extends IOApp {
+
+  override def run(args: List[String]): IO[ExitCode] =
+    for {
+      month        <- currentMonthPrompt.toIO
+      loadedPieces <- Persistence.load(month).map(_.getOrElse(Nil))
+      weekends     <- reportWeekend.toIO
+      _ <- {
+        import WorkDays.filters._
+        WorkDays
+          .monthWorkDays(month, weekends)
+          .excluding(loadedPieces.map(_.day)) match {
+          case Nil  => reportMonth(month)
+          case days => promptDays(month, loadedPieces, days)
+        }
+      }
+    } yield ExitCode.Success
 
   private def reportMonth(month: YearMonth): IO[Unit] =
     for {
@@ -23,7 +39,7 @@ object Winden extends IOApp {
       _ <- Prompt.dict.summaryIO(loadedPieces)
     } yield ()
 
-  private def promptRemainingDays(
+  private def promptDays(
       month: YearMonth,
       loadedPieces: List[TimePiece],
       filteredDays: List[LocalDate]
@@ -64,21 +80,5 @@ object Winden extends IOApp {
       file <- Persistence.store(month, loadedPieces ++ newPieces)
       _    <- IO(println(s"Written into $file"))
     } yield ()
-
-  override def run(args: List[String]): IO[ExitCode] =
-    for {
-      month        <- currentMonthPrompt.toIO
-      loadedPieces <- Persistence.load(month).map(_.getOrElse(Nil))
-      weekends     <- reportWeekend.toIO
-      filteredDays =
-        PersonalAssistant
-          .potentiallyWorkingDays(month, weekends)
-          .filterNot(d => loadedPieces.map(_.day).contains(d))
-      _ <-
-        if (filteredDays.isEmpty)
-          reportMonth(month)
-        else
-          promptRemainingDays(month, loadedPieces, filteredDays)
-    } yield ExitCode.Success
 
 }
