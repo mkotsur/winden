@@ -25,8 +25,9 @@ lazy val core = project.settings(
     deps.catsEffect,
     deps.betterFiles,
     deps.circe,
-    deps.circeParser
-  ),
+    deps.circeParser,
+    deps.pureConfig
+  ) ++ deps.loggingAll,
   settings.CompilerPlugins
 )
 
@@ -52,6 +53,7 @@ lazy val deps = new {
     val catsEffect = "2.3.1"
     val pureconfig = "0.12.2"
     val http4s     = "0.21.20"
+    val log4cats   = "1.7.0"
     val circe      = "0.13.0"
   }
 
@@ -69,10 +71,16 @@ lazy val deps = new {
     circe
   )
 
+  val loggingAll = Seq(
+    "org.typelevel" %% "log4cats-slf4j"  % V.log4cats,
+    "ch.qos.logback" % "logback-classic" % "1.4.5"
+  )
+
+  val pureConfig = "com.github.pureconfig" %% "pureconfig" % "0.17.4"
+
   val testAll = Seq(
-    "org.scalatest" %% "scalatest"       % "3.1.0"  % "test",
-    "org.mockito"   %% "mockito-scala"   % "1.10.0" % "test",
-    "ch.qos.logback" % "logback-classic" % "1.4.5"  % "test"
+    "org.scalatest" %% "scalatest"     % "3.1.0"  % "test",
+    "org.mockito"   %% "mockito-scala" % "1.10.0" % "test"
   )
 }
 

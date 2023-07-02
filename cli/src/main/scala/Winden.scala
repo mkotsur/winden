@@ -8,34 +8,46 @@ import winden.model.jdktime.implicits._
 import winden.implicits._
 import winden.service.Persistence
 
+import io.github.mkotsur.winden.config.WindenConf
+import io.github.mkotsur.winden.persistence.DocumentStore.DocumentRoot
+import org.typelevel.log4cats.slf4j.Slf4jLogger
+import pureconfig.ConfigSource
+
 import java.time.{LocalDate, YearMonth}
 
 object Winden extends IOApp {
 
+  private implicit def logger = Slf4jLogger.getLogger[IO]
+
   override def run(args: List[String]): IO[ExitCode] =
     for {
-      month        <- currentMonthPrompt.toIO
-      loadedPieces <- Persistence.load(month).map(_.getOrElse(Nil))
-      weekends     <- reportWeekend.toIO
+      conf  <- IO.fromEither(WindenConf.load)
+      _     <- logger.debug(s"Config: ${conf}")
+      month <- currentMonthPrompt.toIO
+      loadedPieces <-
+        Persistence
+          .load(month)(conf.documentRoot)
+          .map(_.getOrElse(Nil))
+      weekends <- reportWeekend.toIO
       _ <- {
         import WorkDays.filters._
         WorkDays
           .monthWorkDays(month, weekends)
           .excluding(loadedPieces.map(_.day)) match {
-          case Nil  => reportMonth(month)
-          case days => promptDays(month, loadedPieces, days)
+          case Nil  => reportPieces(loadedPieces)
+          case days => promptDays(month, loadedPieces, days)(conf.documentRoot)
         }
       }
     } yield ExitCode.Success
 
-  private def reportMonth(month: YearMonth): IO[Unit] =
+  private def reportPieces(pieces: List[TimePiece]): IO[Unit] =
     for {
       includeDesc <- dailyDescription.toIO
-      loadedPieces <- Persistence.load(month).map {
-        case None                        => Nil
-        case Some(pieces) if includeDesc => pieces
-        case Some(pieces)                => pieces.map(_.copy(description = ""))
-      }
+      loadedPieces =
+        if (includeDesc)
+          pieces
+        else
+          pieces.map(_.copy(description = ""))
       _ <- Prompt.dict.summaryIO(loadedPieces)
     } yield ()
 
@@ -43,7 +55,7 @@ object Winden extends IOApp {
       month: YearMonth,
       loadedPieces: List[TimePiece],
       filteredDays: List[LocalDate]
-  ): IO[Unit] =
+  )(documentRoot: DocumentRoot): IO[Unit] =
     for {
       dailyDescriptions <- dailyDescription.toIO
       _                 <- IO(println(s"Timesheet for ${month.getMonth.name()} ${month.getYear}"))
@@ -67,7 +79,7 @@ object Winden extends IOApp {
                 for {
                   _    <- IO(println("Storing intermediate results"))
                   acc  <- accIO
-                  file <- Persistence.store(month, loadedPieces ++ acc)
+                  file <- Persistence.store(month, loadedPieces ++ acc)(documentRoot)
                   _    <- IO(println(s"Written into $file"))
                 } yield acc
               )
@@ -77,7 +89,7 @@ object Winden extends IOApp {
         processDays(filteredDays)
       }
       _    <- Prompt.dict.summaryIO(loadedPieces ++ newPieces)
-      file <- Persistence.store(month, loadedPieces ++ newPieces)
+      file <- Persistence.store(month, loadedPieces ++ newPieces)(documentRoot)
       _    <- IO(println(s"Written into $file"))
     } yield ()
 
