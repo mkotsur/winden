@@ -16,7 +16,6 @@ inThisBuild(
   )
 )
 
-
 ThisBuild / scalacOptions ++= Seq(
   "-Xlint:unused"
 )
@@ -29,7 +28,6 @@ lazy val core = project.settings(
     deps.circeParser
   ),
   settings.CompilerPlugins
-  //  settings.SimplePaths
 )
 
 lazy val web = project
@@ -39,7 +37,6 @@ lazy val web = project
       deps.betterFiles
     ) ++ deps.http4sAll,
     settings.CompilerPlugins
-    //  settings.SimplePaths
   )
   .dependsOn(core)
 
@@ -47,7 +44,6 @@ lazy val cli = project
   .settings(
     libraryDependencies ++= deps.testAll ++ Seq(deps.catsEffect, deps.betterFiles),
     settings.CompilerPlugins
-    //  settings.SimplePaths
   )
   .dependsOn(core)
 
@@ -81,11 +77,6 @@ lazy val deps = new {
 }
 
 lazy val settings = new {
-
-  //  val SimplePaths = Seq(
-  //    Compile / scalaSource := baseDirectory.value / "src",
-  //    Compile / resourceDirectory := baseDirectory.value / "res"
-  //  )
 
   val CompilerPlugins = Seq(
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full)
