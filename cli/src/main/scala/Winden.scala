@@ -1,17 +1,15 @@
 package io.github.mkotsur
-import cats.effect.{ExitCode, IO, IOApp}
-import cats.implicits._
+import winden.config.WindenConf
+import winden.implicits._
 import winden.model.Prompt.dict._
 import winden.model._
-import winden.service.WorkDays
 import winden.model.jdktime.implicits._
-import winden.implicits._
-import winden.service.Persistence
+import winden.persistence.DocumentStore.DocumentRoot
+import winden.service.{Persistence, WorkDays}
 
-import io.github.mkotsur.winden.config.WindenConf
-import io.github.mkotsur.winden.persistence.DocumentStore.DocumentRoot
+import cats.effect.{ExitCode, IO, IOApp}
+import cats.implicits._
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import pureconfig.ConfigSource
 
 import java.time.{LocalDate, YearMonth}
 

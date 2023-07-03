@@ -50,14 +50,14 @@ lazy val cli = project
 
 lazy val deps = new {
   private lazy val V = new {
-    val catsEffect = "2.3.1"
+    val catsEffect = "3.4.11"
     val pureconfig = "0.12.2"
-    val http4s     = "0.21.20"
-    val log4cats   = "1.7.0"
-    val circe      = "0.13.0"
+    val http4s     = "0.23.15"
+    val log4cats   = "2.6.0"
+    val circe      = "0.14.5"
   }
 
-  val betterFiles    = "com.github.pathikrit"  %% "better-files"           % "3.9.1"
+  val betterFiles    = "com.github.pathikrit"  %% "better-files"           % "3.9.2"
   val catsEffect     = "org.typelevel"         %% "cats-effect"            % V.catsEffect
   val pureconfig     = "com.github.pureconfig" %% "pureconfig"             % V.pureconfig
   val pureconfigCats = "com.github.pureconfig" %% "pureconfig-cats-effect" % V.pureconfig
@@ -73,14 +73,14 @@ lazy val deps = new {
 
   val loggingAll = Seq(
     "org.typelevel" %% "log4cats-slf4j"  % V.log4cats,
-    "ch.qos.logback" % "logback-classic" % "1.4.5"
+    "ch.qos.logback" % "logback-classic" % "1.4.8"
   )
 
   val pureConfig = "com.github.pureconfig" %% "pureconfig" % "0.17.4"
 
   val testAll = Seq(
-    "org.scalatest" %% "scalatest"     % "3.1.0"  % "test",
-    "org.mockito"   %% "mockito-scala" % "1.10.0" % "test"
+    "org.scalatest" %% "scalatest"     % "3.2.16"  % "test",
+    "org.mockito"   %% "mockito-scala" % "1.17.14" % "test"
   )
 }
 
