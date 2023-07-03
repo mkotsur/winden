@@ -9,7 +9,7 @@ ThisBuild / idePackagePrefix := Some("io.github.mkotsur")
 
 inThisBuild(
   List(
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.11",
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,
     scalafixScalaBinaryVersion := "2.13"
@@ -50,9 +50,10 @@ lazy val cli = project
 
 lazy val deps = new {
   private lazy val V = new {
-    val catsEffect = "3.4.11"
+    val catsEffect = "3.5.1"
     val pureconfig = "0.12.2"
     val http4s     = "0.23.15"
+    val http4sDsl  = "0.23.22"
     val log4cats   = "2.6.0"
     val circe      = "0.14.5"
   }
@@ -64,10 +65,10 @@ lazy val deps = new {
   val circe          = "io.circe"              %% "circe-generic"          % V.circe
   val circeParser    = "io.circe"              %% "circe-parser"           % V.circe
   val http4sAll = Seq(
-    "org.http4s" %% "http4s-dsl"          % V.http4s,
+    "org.http4s" %% "http4s-dsl"          % V.http4sDsl,
+    "org.http4s" %% "http4s-circe"        % V.http4sDsl,
     "org.http4s" %% "http4s-blaze-server" % V.http4s,
     "org.http4s" %% "http4s-blaze-client" % V.http4s,
-    "org.http4s" %% "http4s-circe"        % V.http4s,
     circe
   )
 
